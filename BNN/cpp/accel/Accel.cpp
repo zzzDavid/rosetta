@@ -110,9 +110,9 @@ void process_word(
 
   // Prologue
   // Update bottom row, slices are shifted left. Some slices copied from previous word (middle row)
-  for (ap_uint<4> bank = 0; bank < CONV_BANKS; ++bank) {
+  for (ap_uint<4> bank = 0; bank < CONV_BANKS; ++bank) { // upper bound is a known constant
     ap_int<6> s_idx = bank + slices_per_line - CONV_BANKS;
-    if (s_idx < 0) {
+    if (s_idx < 0) { // condition can be evaluated at compile time
       // set to zero or copy from old word (middle row)
       for (ap_uint<4> cc = 1; cc < CONV_COLS-1; ++cc) {
         line_buffer_m[bank][CONV_ROWS-1][cc] = old_word_buffer_m[CONV_BANKS+s_idx][cc];
@@ -732,7 +732,7 @@ void top(
   static Address kh_index = 0;
   static Address o_index = 0;
 
-  if (layer_mode[0]) {
+  if (layer_mode[0]) { // condition can be decided during interpretation
     kh_index = 0;
     o_index = 0;
   } else {
@@ -746,18 +746,18 @@ void top(
   const ap_uint<5> words_per_image = 1 << (2*width_mode);
   Address img_idx = 0;  // i / words_per_image;
   IdxType img_off = 0;  // i % words_per_image;
-  LOOP_DMEM_I: for (Address i = 0; i < input_words; ++i) {
-    if (layer_type == LAYER_CONV) {
+  LOOP_DMEM_I: for (Address i = 0; i < input_words; ++i) { // upper bound is a known constant
+    if (layer_type == LAYER_CONV) { // condition can be decided during interpretation
       Address bank_idx = img_idx % CONVOLVERS;
       Address bank_off = img_idx / CONVOLVERS;
       dmem[d_i_idx][bank_idx][(bank_off<<(2*width_mode)) + img_off] = dmem_i[i];
     }
-    else if (layer_type == LAYER_CONV1)
+    else if (layer_type == LAYER_CONV1) // condition can be decided during interpretation
       dmem[d_i_idx][i/C_DMEM_WORDS][i%C_DMEM_WORDS] = dmem_i[i];
     else
       dmem[d_i_idx][i%CONVOLVERS][i/CONVOLVERS] = dmem_i[i];
 
-    if (++img_off == words_per_image) {
+    if (++img_off == words_per_image) { // condition can be decided during interpretation
       img_off = 0;
       ++img_idx;
     }
@@ -765,16 +765,16 @@ void top(
 
   // Weight input, we must copy every 64-bit Word from the interface
   // into the accelerator
-  LOOP_WT_I: for (Address i = 0; i < C_WT_WORDS*CONVOLVERS; ++i) {
+  LOOP_WT_I: for (Address i = 0; i < C_WT_WORDS*CONVOLVERS; ++i) { // upper bound is a known constant
     wt_mem[i%CONVOLVERS][i/CONVOLVERS] = wt_i[i];
   }
   //printf ("\nAccel Weights:\n");
   //print_params3d(wt_mem[0], 0, n_inputs*n_outputs);
 
-  LOOP_KH_I: for (ap_uint<16> i = 0; i < KH_WORDS; ++i)
+  LOOP_KH_I: for (ap_uint<16> i = 0; i < KH_WORDS; ++i) // upper bound is a known constant
     kh_mem[i] = kh_i[i];
 
-  if (layer_type == LAYER_CONV1) {
+  if (layer_type == LAYER_CONV1) { // condition can be decided during interpretation
     assert(n_inputs == 3);
 
     fp_conv(
@@ -791,12 +791,12 @@ void top(
     kh_index += n_outputs;
     o_index += n_outputs;
   }
-  else if (layer_type == LAYER_CONV) {
+  else if (layer_type == LAYER_CONV) { // condition can be decided during interpretation
     assert(norm_mode != 2 || n_outputs % 4 == 0); // needed for pooling of 8x8 image
     assert(n_inputs % CONVOLVERS == 0);
 
     LOOP_IMG_BATCH:
-    for (IdxType i = 0; i < n_outputs; ++i) {
+    for (IdxType i = 0; i < n_outputs; ++i) { // upper bound is a known constant
       // Load the batch-norm parameters for this output
       NormComp nc;
       load_kh(nc, kh_mem, kh_index);
@@ -835,10 +835,10 @@ void top(
   ap_uint<5> words_per_out = words_per_image / ((norm_mode!=2) ? 1 : 4);
   img_idx = 0;
   img_off = 0;
-  LOOP_DMEM_O: for (Address i = 0; i < output_words; ++i) {
+  LOOP_DMEM_O: for (Address i = 0; i < output_words; ++i) { // upper bound is a known constant
     // exclude conv6 (width==8, norm_mode==2) here because it writes
     // the output fmaps linearly
-    if (layer_type <= LAYER_CONV && !(width_mode == 0 && norm_mode == 2)) {
+    if (layer_type <= LAYER_CONV && !(width_mode == 0 && norm_mode == 2)) { // condition can be evaluated during interpretation
       Address bank_idx = img_idx % CONVOLVERS;
       Address bank_off = img_idx / CONVOLVERS;
       dmem_o[i] = dmem[d_o_idx][bank_idx][bank_off*words_per_out + img_off];
@@ -846,7 +846,7 @@ void top(
     else
       dmem_o[i] = dmem[d_o_idx][i%CONVOLVERS][i/CONVOLVERS];
 
-    if (++img_off == words_per_out) {
+    if (++img_off == words_per_out) { // condition can be evaluated during interpretation
       img_off = 0;
       ++img_idx;
     }

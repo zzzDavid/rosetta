@@ -147,7 +147,7 @@ void projection ( Triangle_3D triangle_3d, Triangle_2D *triangle_2d, int angle )
 bool rasterization1 ( Triangle_2D triangle_2d, bit8 max_min[], int max_index[])
 {
   // clockwise the vertices of input 2d triangle
-  if ( check_clockwise( triangle_2d ) == 0 )
+  if ( check_clockwise( triangle_2d ) == 0 ) // this condition is data dependent
     return 1;
   if ( check_clockwise( triangle_2d ) < 0 )
     clockwise_vertices( &triangle_2d );
@@ -272,7 +272,7 @@ void rendering_sw( Triangle_3D triangle_3ds[NUM_3D_TRI], bit8 output[MAX_X][MAX_
   Pixel pixels[500];
 
   // processing NUM_3D_TRI 3D triangles
-  TRIANGLES: for (int i = 0; i < NUM_3D_TRI; i ++ )
+  TRIANGLES: for (int i = 0; i < NUM_3D_TRI; i ++ ) // NUM_3D_TRI is a known constant
   {
     // five stages for processing each 3D triangle
     projection( triangle_3ds[i], &triangle_2ds, angle );

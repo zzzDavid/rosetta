@@ -15,13 +15,13 @@ void gradient_xy_calc(pixel_t frame[MAX_HEIGHT][MAX_WIDTH],
     pixel_t gradient_y[MAX_HEIGHT][MAX_WIDTH])
 {
   pixel_t x_grad, y_grad;
-  for (int r = 0; r < MAX_HEIGHT + 2; r ++ )
+  for (int r = 0; r < MAX_HEIGHT + 2; r ++ ) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH + 2; c ++)
+    for (int c = 0; c < MAX_WIDTH + 2; c ++) // upper bound is a known constant
     {
       x_grad = 0;
       y_grad = 0;
-      if (r >= 4 && r < MAX_HEIGHT && c >= 4 && c < MAX_WIDTH)
+      if (r >= 4 && r < MAX_HEIGHT && c >= 4 && c < MAX_WIDTH) // condition can be evaluated during interpretation
       {
         for (int i = 0; i < 5; i++)
         {
@@ -31,7 +31,7 @@ void gradient_xy_calc(pixel_t frame[MAX_HEIGHT][MAX_WIDTH],
         gradient_x[r-2][c-2] = x_grad / 12;
         gradient_y[r-2][c-2] = y_grad / 12;
       }
-      else if (r >= 2 && c >= 2)
+      else if (r >= 2 && c >= 2) // condition can be evaluated during interpretation
       {
         gradient_x[r-2][c-2] = 0;
         gradient_y[r-2][c-2] = 0;
@@ -48,9 +48,9 @@ void gradient_z_calc(pixel_t frame0[MAX_HEIGHT][MAX_WIDTH],
                      pixel_t frame4[MAX_HEIGHT][MAX_WIDTH],
                      pixel_t gradient_z[MAX_HEIGHT][MAX_WIDTH])
 {
-  for (int r = 0; r < MAX_HEIGHT; r ++)
+  for (int r = 0; r < MAX_HEIGHT; r ++) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH; c ++)
+    for (int c = 0; c < MAX_WIDTH; c ++) // upper bound is a known constant
     {
       gradient_z[r][c] = 0.0f;
       gradient_z[r][c] += frame0[r][c] * GRAD_WEIGHTS[0]; 
@@ -69,15 +69,15 @@ void gradient_weight_y(pixel_t gradient_x[MAX_HEIGHT][MAX_WIDTH],
                        pixel_t gradient_z[MAX_HEIGHT][MAX_WIDTH],
                        gradient_t filt_grad[MAX_HEIGHT][MAX_WIDTH])
 {
-  for (int r = 0; r < MAX_HEIGHT + 3; r ++)
+  for (int r = 0; r < MAX_HEIGHT + 3; r ++) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH; c ++)
+    for (int c = 0; c < MAX_WIDTH; c ++) // upper bound is a known constant
     {
       gradient_t acc;
       acc.x = 0;
       acc.y = 0;
       acc.z = 0;
-      if (r >= 6 && r < MAX_HEIGHT)
+      if (r >= 6 && r < MAX_HEIGHT) // condition can be evaluated during interpretation
       { 
         for (int i = 0; i < 7; i ++)
         {
@@ -87,7 +87,7 @@ void gradient_weight_y(pixel_t gradient_x[MAX_HEIGHT][MAX_WIDTH],
         }
         filt_grad[r-3][c] = acc;            
       }
-      else if (r >= 3)
+      else if (r >= 3) // condition can be evaluated during interpretation
       {
         filt_grad[r-3][c] = acc;
       }
@@ -99,15 +99,15 @@ void gradient_weight_y(pixel_t gradient_x[MAX_HEIGHT][MAX_WIDTH],
 void gradient_weight_x(gradient_t y_filt[MAX_HEIGHT][MAX_WIDTH],
                        gradient_t filt_grad[MAX_HEIGHT][MAX_WIDTH])
 {
-  for (int r = 0; r < MAX_HEIGHT; r ++)
+  for (int r = 0; r < MAX_HEIGHT; r ++) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH + 3; c ++)
+    for (int c = 0; c < MAX_WIDTH + 3; c ++) // upper bound is a known constant
     {
       gradient_t acc;
       acc.x = 0;
       acc.y = 0;
       acc.z = 0;
-      if (c >= 6 && c < MAX_WIDTH)
+      if (c >= 6 && c < MAX_WIDTH) // condition can be evaluated during interpretation
       {
         for (int i = 0; i < 7; i ++)
         {
@@ -117,7 +117,7 @@ void gradient_weight_x(gradient_t y_filt[MAX_HEIGHT][MAX_WIDTH],
         }
         filt_grad[r][c-3] = acc;
       }
-      else if (c >= 3)
+      else if (c >= 3) // condition can be evaluated during interpretation
       {
         filt_grad[r][c-3] = acc;
       }
@@ -129,9 +129,9 @@ void gradient_weight_x(gradient_t y_filt[MAX_HEIGHT][MAX_WIDTH],
 void outer_product(gradient_t gradient[MAX_HEIGHT][MAX_WIDTH],
                    outer_t outer_product[MAX_HEIGHT][MAX_WIDTH])
 { 
-  for (int r = 0; r < MAX_HEIGHT; r ++)
+  for (int r = 0; r < MAX_HEIGHT; r ++) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH; c ++)
+    for (int c = 0; c < MAX_WIDTH; c ++) // upper bound is a known constant
     {
       gradient_t grad = gradient[r][c];
       outer_t out;
@@ -150,9 +150,9 @@ void outer_product(gradient_t gradient[MAX_HEIGHT][MAX_WIDTH],
 void tensor_weight_y(outer_t outer[MAX_HEIGHT][MAX_WIDTH],
                      tensor_t tensor_y[MAX_HEIGHT][MAX_WIDTH])
 {
-  for (int r = 0; r < MAX_HEIGHT + 1; r ++)
+  for (int r = 0; r < MAX_HEIGHT + 1; r ++) // upper bound is a known constant
   {
-    for(int c = 0; c < MAX_WIDTH; c ++)
+    for(int c = 0; c < MAX_WIDTH; c ++) // upper bound is a known constant
     {
       tensor_t acc;
       for (int k = 0; k < 6; k ++)
@@ -160,7 +160,7 @@ void tensor_weight_y(outer_t outer[MAX_HEIGHT][MAX_WIDTH],
         acc.val[k] = 0;
       }
 
-      if (r >= 2 && r < MAX_HEIGHT) 
+      if (r >= 2 && r < MAX_HEIGHT)  // condition can be evaluated during interpretation
       {
         for (int i = 0; i < 3; i ++)
         {
@@ -170,7 +170,7 @@ void tensor_weight_y(outer_t outer[MAX_HEIGHT][MAX_WIDTH],
           }
         }
       }
-      if (r >= 1)
+      if (r >= 1) // condition can be evaluated during interpretation
       { 
         tensor_y[r-1][c] = acc;            
       }
@@ -182,16 +182,16 @@ void tensor_weight_y(outer_t outer[MAX_HEIGHT][MAX_WIDTH],
 void tensor_weight_x(tensor_t tensor_y[MAX_HEIGHT][MAX_WIDTH],
                      tensor_t tensor[MAX_HEIGHT][MAX_WIDTH])
 {
-  for (int r = 0; r < MAX_HEIGHT; r ++)
+  for (int r = 0; r < MAX_HEIGHT; r ++) // upper bound is a known constant
   {
-    for (int c = 0; c < MAX_WIDTH + 1; c ++)
+    for (int c = 0; c < MAX_WIDTH + 1; c ++) // upper bound is a known constant
     {
       tensor_t acc;
       for(int k = 0; k < 6; k++)
       {
         acc.val[k] = 0;
       }
-      if (c >= 2 && c < MAX_WIDTH) 
+      if (c >= 2 && c < MAX_WIDTH) // condition can be evaluated during interpretation
       {
         for (int i = 0; i < 3; i ++)
         {
@@ -213,11 +213,11 @@ void tensor_weight_x(tensor_t tensor_y[MAX_HEIGHT][MAX_WIDTH],
 void flow_calc(tensor_t tensors[MAX_HEIGHT][MAX_WIDTH],
                velocity_t output[MAX_HEIGHT][MAX_WIDTH])
 {
-  for(int r = 0; r < MAX_HEIGHT; r ++)
+  for(int r = 0; r < MAX_HEIGHT; r ++) // upper bound is a known constant
   {
-    for(int c = 0; c < MAX_WIDTH; c ++)
+    for(int c = 0; c < MAX_WIDTH; c ++) // upper bound is a known constant
     {
-      if (r >= 2 && r < MAX_HEIGHT - 2 && c >= 2 && c < MAX_WIDTH - 2)
+      if (r >= 2 && r < MAX_HEIGHT - 2 && c >= 2 && c < MAX_WIDTH - 2) // condition can be evaluated during interpretation
       {
         pixel_t denom = tensors[r][c].val[0] * tensors[r][c].val[1] -
                         tensors[r][c].val[3] * tensors[r][c].val[3];

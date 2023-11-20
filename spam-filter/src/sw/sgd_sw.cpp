@@ -14,7 +14,7 @@ FeatureType dotProduct(FeatureType param[NUM_FEATURES],
                        DataType    feature[NUM_FEATURES])
 {
   FeatureType result = 0;
-  DOT: for (int i = 0; i < NUM_FEATURES; i++)
+  DOT: for (int i = 0; i < NUM_FEATURES; i++) // upper bound is a known constant
     result += param[i] * feature[i];
   return result;
 }
@@ -30,7 +30,7 @@ void computeGradient(
     DataType    feature[NUM_FEATURES],
     FeatureType scale)
 {
-  GRAD: for (int i = 0; i < NUM_FEATURES; i++)
+  GRAD: for (int i = 0; i < NUM_FEATURES; i++) // upper bound is a known constant
     grad[i] = scale * feature[i];
 }
 
@@ -40,7 +40,7 @@ void updateParameter(
     FeatureType grad[NUM_FEATURES],
     FeatureType scale)
 {
-  UPDATE: for (int i = 0; i < NUM_FEATURES; i++)
+  UPDATE: for (int i = 0; i < NUM_FEATURES; i++) // upper bound is a known constant
     param[i] += scale * grad[i];
 }
 
@@ -54,10 +54,10 @@ void SgdLR_sw( DataType    data[NUM_FEATURES * NUM_TRAINING],
 
   // main loop
   // runs for multiple epochs
-  EPOCH: for (int epoch = 0; epoch < NUM_EPOCHS; epoch ++) 
+  EPOCH: for (int epoch = 0; epoch < NUM_EPOCHS; epoch ++) // upper bound is a known constant 
   {
     // in each epoch, go through each training instance in sequence
-    TRAINING_INST: for( int training_id = 0; training_id < NUM_TRAINING; training_id ++ )
+    TRAINING_INST: for( int training_id = 0; training_id < NUM_TRAINING; training_id ++ ) // upper bound is a known constant
     { 
       // dot product between parameter vector and data sample 
       FeatureType dot = dotProduct(theta, &data[NUM_FEATURES * training_id]);

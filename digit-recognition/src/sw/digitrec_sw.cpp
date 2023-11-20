@@ -30,7 +30,7 @@ void update_knn( const DigitType* train_inst, const DigitType* test_inst, int di
 {
   int dist = 0;
 
-  for (int i = 0; i < DIGIT_WIDTH; i ++ )
+  for (int i = 0; i < DIGIT_WIDTH; i ++ ) // upper bound is a known constant
   {
     DigitType diff = test_inst[i] ^ train_inst[i];
     dist += popcount(diff);
@@ -40,7 +40,7 @@ void update_knn( const DigitType* train_inst, const DigitType* test_inst, int di
   int max_dist_id = K_CONST+1;
 
   // Find the max distance
-  FIND_MAX_DIST: for ( int k = 0; k < K_CONST; ++k ) 
+  FIND_MAX_DIST: for ( int k = 0; k < K_CONST; ++k )  // upper bound is a known constant
   {
     if ( dists[k] > max_dist ) 
     {
@@ -50,7 +50,7 @@ void update_knn( const DigitType* train_inst, const DigitType* test_inst, int di
   }
 
   // Replace the entry with the max distance
-  if ( dist < max_dist )
+  if ( dist < max_dist ) // condition can be evaluated during interpretation
   {
     dists[max_dist_id] = dist;
     labels[max_dist_id] = label;
@@ -66,12 +66,12 @@ LabelType knn_vote(int labels[K_CONST])
   
   int votes[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  for (int i = 0; i < K_CONST; i ++ )
+  for (int i = 0; i < K_CONST; i ++ ) // upper bound is a known constant
     votes[labels[i]] ++;
 
   for (int i = 0; i < 10; i ++ ) 
   {
-    if (votes[i] > max_vote)
+    if (votes[i] > max_vote) // condition can be evaluated during interpretation
     {
       max_vote = votes[i];
       max_label = i;
@@ -93,10 +93,10 @@ void DigitRec_sw(const DigitType training_set[NUM_TRAINING * DIGIT_WIDTH],
   int labels[K_CONST];
 
   // loop through test set
-  TEST_LOOP: for (int t = 0; t < NUM_TEST; ++t) 
+  TEST_LOOP: for (int t = 0; t < NUM_TEST; ++t)  // upper bound is a known constant
   {
     // Initialize the neighbor set
-    SET_KNN_SET: for ( int i = 0; i < K_CONST; ++i ) 
+    SET_KNN_SET: for ( int i = 0; i < K_CONST; ++i )  // upper bound is a known constant
     {
       // Note that the max distance is 256
       dists[i] = 256;
@@ -104,7 +104,7 @@ void DigitRec_sw(const DigitType training_set[NUM_TRAINING * DIGIT_WIDTH],
     }
 
     // for each training instance, compare it with the test instance, and update the nearest neighbor set
-    TRAINING_LOOP : for ( int i = 0; i < NUM_TRAINING; ++i ) 
+    TRAINING_LOOP : for ( int i = 0; i < NUM_TRAINING; ++i ) // upper bound is a known constant
       update_knn(&training_set[i * DIGIT_WIDTH], &test_set[t * DIGIT_WIDTH], dists, labels, i / CLASS_SIZE);
       
     // Compute the final output
